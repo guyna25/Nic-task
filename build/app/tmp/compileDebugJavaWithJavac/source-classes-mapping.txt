@@ -1,0 +1,4 @@
+com/example/nic_task/BuildConfig.java
+ com.example.nic_task.BuildConfig
+io/flutter/plugins/GeneratedPluginRegistrant.java
+ io.flutter.plugins.GeneratedPluginRegistrant

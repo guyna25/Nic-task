@@ -1,16 +1,19 @@
 # nic_task
 
-A new Flutter project.
+A todo app initally made for a friend.
+The app is similar to other solutions, though completing a task will result in colorful confetti on screen.
 
-## Getting Started
+## Objects
 
-This project is a starting point for a Flutter application.
+--Screens
+  1. todo_entry_screen - the screen to enter new tasks
+  2. todo_screen - all task display
+  3. app_drawer - side menu
 
-A few resources to get you started if this is your first Flutter project:
+--models
+  todo - the task base logic
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
+--state
+  todo_model - the model is responsible for maintaining and updating all task logic
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+main.dart - app starter

@@ -22,7 +22,7 @@ class TodoModel extends ChangeNotifier {
 
   final _todos_key = 'todos';
 
-  SharedPreferences prefs;
+  SharedPreferences? prefs;
 
   void initPrefs() async {
     prefs = await SharedPreferences.getInstance();
@@ -32,7 +32,7 @@ class TodoModel extends ChangeNotifier {
     SharedPreferences.getInstance().then(
       (SharedPreferences sp) {
         prefs = sp;
-        _todos = sp.getStringList(_todos_key).map(
+        _todos = sp.getStringList(_todos_key) == null ? [] : sp.getStringList(_todos_key)!.map(
           (e) {
             return Todo.fromMap(json.decode(e));
           }).toList();
@@ -46,18 +46,21 @@ class TodoModel extends ChangeNotifier {
   void saveTodos() async {
     List<String> encodedTodos =
         todos.map((e) => json.encode(e.toMap())).toList();
-    await prefs.setStringList(_todos_key, encodedTodos);
+    await prefs!.setStringList(_todos_key, encodedTodos);
   }
 
   void loadTodos() async {
-    if (prefs != null && prefs.containsKey(_todos_key)) {
-      List<String> l = prefs.getStringList(_todos_key);
+    if (prefs != null && prefs!.containsKey(_todos_key)) {
+      List<String> l = prefs!.getStringList(_todos_key)!;
       _todos = l.map((e) => Todo.fromMap(json.decode(e))).toList();
     }
   }
 
+  int nextId () {
+    return todos.length == 0 ? 0 : _todos.last.id! + 1;
+  }
+
   void add(Todo todo) {
-    todo.id = todos.length == 0 ? 0 : _todos.last.id + 1;
     _todos.add(todo);
     saveTodos();
     notifyListeners();
@@ -67,7 +70,7 @@ class TodoModel extends ChangeNotifier {
     var todo = _todos.firstWhere((todo) => todo.id == id);
     todo.title = newTitle;
     todo.description = newDescription;
-    // saveTodos();
+    saveTodos();
     notifyListeners();
   }
 
@@ -77,22 +80,22 @@ class TodoModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Todo read(int id) {
+  Todo read(int? id) {
     return _todos.firstWhere((element) => element.id == id);
   }
 
-  int _compareTodos(Todo a, Todo b) {
-    if (a.isDone == b.isDone) {
-      return 0;
-    } else if (a.isDone) {
-      return 1;
-    }
-    return -1;
-  }
+  // int _compareTodos(Todo a, Todo b) {
+  //   if (a.isDone == b.isDone) {
+  //     return 0;
+  //   } else if (a.isDone) {
+  //     return 1;
+  //   }
+  //   return -1;
+  // }
 
-  void toggleDone(int id) {
+  void toggleDone(int? id) {
     var index = _todos.indexWhere((element) => element.id == id);
-    _todos[index].isDone = !_todos[index].isDone;
+    _todos[index].isDone = !_todos[index].isDone!;
     for (int i = 0; i < _todos.length; i++) {
       _todos[i].id = i;
     }

@@ -4,21 +4,22 @@ import '../model/todo.dart';
 import '../state/todo_model.dart';
 
 class ScreenArguments {
-  final int todoId;
+  final int? todoId;
 
   ScreenArguments(this.todoId);
 }
 
-class TodoEntryScreen extends StatelessWidget {
+class TodoDetailScreen extends StatelessWidget {
   static const routeName = '/entry';
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        resizeToAvoidBottomInset: false,
         appBar: AppBar(
           title: Text("Create todo"),
         ),
-        body: TodoForm());
+        body: SingleChildScrollView(child: TodoForm()));
   }
 }
 
@@ -34,11 +35,13 @@ class TodoFormState extends State<TodoForm> {
 
   final titleController = TextEditingController();
   final descriptionController = TextEditingController();
-  DateTime dueDate;
+  final subtaskController = TextEditingController();
+  DateTime? dueDate;
   bool isEditForm = false;
-  Todo editableTodo;
+  late Todo editableTodo;
+  List<Subtask> subtasks = <Subtask>[];
 
-  final TodoModel todoModel;
+  final TodoModel? todoModel;
 
   TodoFormState({this.todoModel});
 
@@ -46,18 +49,24 @@ class TodoFormState extends State<TodoForm> {
   void dispose() {
     titleController.dispose();
     descriptionController.dispose();
+    subtaskController.dispose();
     super.dispose();
   }
 
   void createTodo(Function addTodo) {
     var todo = new Todo(
-        title: titleController.text, description: descriptionController.text, dueDate: dueDate);
+      id: Provider.of<TodoModel>(context, listen: false).nextId(),
+      title: titleController.text,
+      description: descriptionController.text,
+      dueDate: dueDate,
+      subTasks: subtasks,
+    );
     addTodo(todo);
     Navigator.pop(context);
   }
 
   void editTodo(Function editTodo) {
-    editTodo(editableTodo.id, titleController.text, descriptionController.text);
+    editTodo(editableTodo.id, titleController.text, descriptionController.text, subtasks);
     Navigator.pop(context);
   }
 
@@ -67,13 +76,18 @@ class TodoFormState extends State<TodoForm> {
   }
 
   void loadTodoForEdit(BuildContext context) {
-    final ScreenArguments arguments = ModalRoute.of(context).settings.arguments;
+    final ScreenArguments? arguments =
+        ModalRoute.of(context)!.settings.arguments as ScreenArguments?;
     if (arguments != null && arguments.todoId != null) {
       isEditForm = true;
-      final m = Provider.of<TodoModel>(context, listen: false);
-      editableTodo = m.read(arguments.todoId);
-      titleController.text = editableTodo.title;
-      descriptionController.text = editableTodo.description;
+      editableTodo =
+          Provider.of<TodoModel>(context, listen: false).read(arguments.todoId);
+      titleController.text = editableTodo.title!;
+      descriptionController.text = editableTodo.description!;
+      subtaskController.text = '';
+      if (editableTodo.subTasks != null) {
+        subtasks = editableTodo.subTasks!;
+      }
     }
   }
 
@@ -89,9 +103,46 @@ class TodoFormState extends State<TodoForm> {
                     child: TextFormField(
                       controller: titleController,
                       decoration: const InputDecoration(
-                        icon: Icon(Icons.task_alt),
+                        icon: Icon(Icons.task_alt_outlined),
                         labelText: 'Task name',
                       ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      children: <Widget>[
+                        ListView.builder(
+                            shrinkWrap: true,
+                            itemCount: subtasks.length,
+                            itemBuilder: (BuildContext ctx, int idx) {
+                              Subtask subtask = subtasks[idx];
+                              return CheckboxListTile(
+                                  title: Text(subtask.description),
+                                  secondary: Icon(Icons.task_alt),
+                                  value: subtask.isDone,
+                                  onChanged: (bool? value) {
+                                    setState(() {
+                                      subtask.isDone =
+                                          value != null ? value : false;
+                                    });
+                                  });
+                            }),
+                        TextField(
+                          controller: subtaskController,
+                          decoration: InputDecoration(
+                            prefixIcon: IconButton(
+                              onPressed: () {
+                                subtasks.add(
+                                    Subtask(subtaskController.text, false));
+                                subtaskController.clear();
+                                setState(() {});
+                              },
+                              icon: Icon(Icons.add_task),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                   Padding(
@@ -99,9 +150,8 @@ class TodoFormState extends State<TodoForm> {
                     child: TextFormField(
                       controller: descriptionController,
                       decoration: const InputDecoration(
-                        icon: Icon(Icons.task_alt),
-                        hintText: 'Precise descriptions are better',
-                        labelText: 'Task Description',
+                        icon: Icon(Icons.note),
+                        labelText: 'Notes',
                       ),
                     ),
                   ),
@@ -111,7 +161,11 @@ class TodoFormState extends State<TodoForm> {
                       // label: Text('date'),
                       icon: Icon(Icons.date_range),
                       onPressed: () async {
-                        dueDate = await showDatePicker(context: context, initialDate: DateTime.now(), firstDate: DateTime.now(), lastDate: DateTime(2026, 1, 1));
+                        dueDate = await showDatePicker(
+                            context: context,
+                            initialDate: DateTime.now(),
+                            firstDate: DateTime.now(),
+                            lastDate: DateTime(2026, 1, 1));
                       },
                     ),
                   ),

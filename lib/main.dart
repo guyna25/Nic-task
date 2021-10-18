@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:nic_task/screens/todo_screen.dart';
 import 'package:provider/provider.dart';
-import 'screens/todo_entry_screen.dart';
+import 'screens/todo_detail_screen.dart';
 import './state/todo_model.dart';
 
 void main() {
@@ -21,7 +21,7 @@ class TodoListApp extends StatelessWidget {
       initialRoute: TodoScreen.routeName,
       routes: {
         TodoScreen.routeName: (context) => TodoScreen(),
-        TodoEntryScreen.routeName: (context) => TodoEntryScreen(),
+        TodoDetailScreen.routeName: (context) => TodoDetailScreen(),
       },
     );
   }

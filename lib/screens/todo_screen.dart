@@ -7,7 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:confetti/confetti.dart';
 
 //relative import
-import 'todo_entry_screen.dart';
+import 'todo_detail_screen.dart';
 import '../state/todo_model.dart';
 
 //utilities
@@ -21,7 +21,7 @@ class TodoScreen extends StatefulWidget {
 }
 
 class _TodoScreenState extends State<TodoScreen> {
-  ConfettiController ctrlCenter;
+  ConfettiController? ctrlCenter;
 
   _TodoScreenState() {
     ctrlCenter = ConfettiController(duration: const Duration(seconds: 1));
@@ -62,8 +62,8 @@ class _TodoScreenState extends State<TodoScreen> {
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
         onPressed: () {
-          final m = Provider.of<TodoModel>(context, listen: false).todos;
-          Navigator.pushNamed(context, TodoEntryScreen.routeName);
+          // final m = Provider.of<TodoModel>(context, listen: false).todos;
+          Navigator.pushNamed(context, TodoDetailScreen.routeName);
         },
       ),
       drawer: AppDrawer(),
@@ -72,7 +72,7 @@ class _TodoScreenState extends State<TodoScreen> {
 }
 
 class TodoList extends StatelessWidget {
-  final ConfettiController ctrl;
+  final ConfettiController? ctrl;
 
   TodoList(this.ctrl);
 
@@ -84,10 +84,10 @@ class TodoList extends StatelessWidget {
             itemCount: todoModel.todos.length,
             itemBuilder: (BuildContext context, int index) {
               Todo tempTodo = todoModel.todos[index];
-              String formattedDate = null;
+              String? formattedDate = null;
               if (tempTodo.dueDate != null) {
                 var formatter = new DateFormat('dd-MM-yy');
-                formattedDate = formatter.format(tempTodo.dueDate);
+                formattedDate = formatter.format(tempTodo.dueDate!);
               }
               return Container(
                 height: 50,
@@ -98,22 +98,22 @@ class TodoList extends StatelessWidget {
                         scale: 2.0,
                         child: Checkbox(
                           value: tempTodo.isDone,
-                          onChanged: (bool newValue) {
-                            if (newValue) {
-                              ctrl.play();
+                          onChanged: (bool? newValue) {
+                            if (newValue!) {
+                              ctrl!.play();
                             }
                             todoModel.toggleDone(tempTodo.id);
                           },
                         ),
                       ),
-                      Text(tempTodo.title),
+                      Text(tempTodo.title!),
                       formattedDate != null ? Text(formattedDate) : new Container(),
                       IconButton(
                         icon: Icon(Icons.edit),
                         onPressed: () => {
                           Navigator.pushNamed(
-                              context, TodoEntryScreen.routeName,
-                              arguments: ScreenArguments(tempTodo.id))
+                              context, TodoDetailScreen.routeName,
+                              arguments: ScreenArguments(tempTodo.id,))
                         },
                       )
                     ]),

@@ -66,7 +66,7 @@ class TodoFormState extends State<TodoForm> {
   }
 
   void editTodo(Function editTodo) {
-    editTodo(editableTodo.id, titleController.text, descriptionController.text);
+    editTodo(editableTodo.id, titleController.text, descriptionController.text, subtasks);
     Navigator.pop(context);
   }
 
@@ -76,14 +76,18 @@ class TodoFormState extends State<TodoForm> {
   }
 
   void loadTodoForEdit(BuildContext context) {
-    final ScreenArguments? arguments = ModalRoute.of(context)!.settings.arguments as ScreenArguments?;
+    final ScreenArguments? arguments =
+        ModalRoute.of(context)!.settings.arguments as ScreenArguments?;
     if (arguments != null && arguments.todoId != null) {
       isEditForm = true;
-      final m = Provider.of<TodoModel>(context, listen: false);
-      editableTodo = m.read(arguments.todoId);
+      editableTodo =
+          Provider.of<TodoModel>(context, listen: false).read(arguments.todoId);
       titleController.text = editableTodo.title!;
       descriptionController.text = editableTodo.description!;
       subtaskController.text = '';
+      if (editableTodo.subTasks != null) {
+        subtasks = editableTodo.subTasks!;
+      }
     }
   }
 
@@ -99,7 +103,7 @@ class TodoFormState extends State<TodoForm> {
                     child: TextFormField(
                       controller: titleController,
                       decoration: const InputDecoration(
-                        icon: Icon(Icons.task_alt),
+                        icon: Icon(Icons.task_alt_outlined),
                         labelText: 'Task name',
                       ),
                     ),
@@ -114,26 +118,27 @@ class TodoFormState extends State<TodoForm> {
                             itemBuilder: (BuildContext ctx, int idx) {
                               Subtask subtask = subtasks[idx];
                               return CheckboxListTile(
-                                title: Text(subtask.description),
-                                secondary: Icon(Icons.beach_access),
-                                value: subtask.isDone,
-                                onChanged: (bool? value) {
-                                  setState(() {
-                                    subtask.isDone = value!= null ? value : false;
+                                  title: Text(subtask.description),
+                                  secondary: Icon(Icons.task_alt),
+                                  value: subtask.isDone,
+                                  onChanged: (bool? value) {
+                                    setState(() {
+                                      subtask.isDone =
+                                          value != null ? value : false;
+                                    });
                                   });
-                                }
-                              );
                             }),
                         TextField(
                           controller: subtaskController,
                           decoration: InputDecoration(
                             prefixIcon: IconButton(
                               onPressed: () {
-                                subtasks.add(Subtask(subtaskController.text, false));
+                                subtasks.add(
+                                    Subtask(subtaskController.text, false));
                                 subtaskController.clear();
                                 setState(() {});
                               },
-                              icon: Icon(Icons.add),
+                              icon: Icon(Icons.add_task),
                             ),
                           ),
                         ),
@@ -145,7 +150,7 @@ class TodoFormState extends State<TodoForm> {
                     child: TextFormField(
                       controller: descriptionController,
                       decoration: const InputDecoration(
-                        icon: Icon(Icons.task_alt),
+                        icon: Icon(Icons.note),
                         labelText: 'Notes',
                       ),
                     ),

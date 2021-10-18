@@ -29,23 +29,23 @@ class TodoModel extends ChangeNotifier {
   }
 
   TodoModel() {
-    SharedPreferences.getInstance().then(
-      (SharedPreferences sp) {
-        prefs = sp;
-        _todos = sp.getStringList(_todos_key) == null ? [] : sp.getStringList(_todos_key)!.map(
-          (e) {
-            return Todo.fromMap(json.decode(e));
-          }).toList();
+    SharedPreferences.getInstance().then((SharedPreferences sp) {
+      prefs = sp;
+      _todos = sp.getStringList(_todos_key) == null
+          ? []
+          : sp.getStringList(_todos_key)!.map((e) {
+              return Todo.fromMap(json.decode(e));
+            }).toList();
       notifyListeners();
-      }
-    );
+    });
   }
 
   UnmodifiableListView<Todo> get todos => UnmodifiableListView(_todos);
 
   void saveTodos() async {
-    List<String> encodedTodos =
-        todos.map((e) => json.encode(e.toMap())).toList();
+    List<String> encodedTodos = todos.map((e) {
+      return json.encode(e.toMap());
+    }).toList();
     await prefs!.setStringList(_todos_key, encodedTodos);
   }
 
@@ -56,7 +56,7 @@ class TodoModel extends ChangeNotifier {
     }
   }
 
-  int nextId () {
+  int nextId() {
     return todos.length == 0 ? 0 : _todos.last.id! + 1;
   }
 
@@ -66,10 +66,11 @@ class TodoModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void update(int id, String newTitle, String newDescription) {
+  void update(int id, String newTitle, String newDescription, List<Subtask> subtasks) {
     var todo = _todos.firstWhere((todo) => todo.id == id);
     todo.title = newTitle;
     todo.description = newDescription;
+    todo.subTasks = subtasks;
     saveTodos();
     notifyListeners();
   }

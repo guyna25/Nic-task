@@ -113,7 +113,7 @@ class TodoList extends StatelessWidget {
                         onPressed: () => {
                           Navigator.pushNamed(
                               context, TodoDetailScreen.routeName,
-                              arguments: ScreenArguments(tempTodo.id))
+                              arguments: ScreenArguments(tempTodo.id,))
                         },
                       )
                     ]),

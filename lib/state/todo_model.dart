@@ -85,14 +85,14 @@ class TodoModel extends ChangeNotifier {
     return _todos.firstWhere((element) => element.id == id);
   }
 
-  // int _compareTodos(Todo a, Todo b) {
-  //   if (a.isDone == b.isDone) {
-  //     return 0;
-  //   } else if (a.isDone) {
-  //     return 1;
-  //   }
-  //   return -1;
-  // }
+  int _compareTodos(Todo a, Todo b) {
+    if (a.isDone == b.isDone) {
+      return 0;
+    } else if (a.isDone!) {
+      return 1;
+    }
+    return -1;
+  }
 
   void toggleDone(int? id) {
     var index = _todos.indexWhere((element) => element.id == id);
@@ -105,9 +105,14 @@ class TodoModel extends ChangeNotifier {
     // _todos.sort(_compareTodos);
   }
 
-  void remove(int id) {
+  void remove(int? id) {
     _todos.removeWhere((element) => element.id == id);
     saveTodos();
     notifyListeners();
   }
+
+  // void moveTodo(int oldIdx, int newIdx) {
+  //   Todo firstTodo = _todos[firstVal];
+  //   Todo secondTodo = _todos[firstVal];
+  // }
 }

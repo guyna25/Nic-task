@@ -91,32 +91,39 @@ class TodoList extends StatelessWidget {
               }
               return Container(
                 height: 50,
-                child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Transform.scale(
-                        scale: 2.0,
-                        child: Checkbox(
-                          value: tempTodo.isDone,
-                          onChanged: (bool? newValue) {
-                            if (newValue!) {
-                              ctrl!.play();
-                            }
-                            todoModel.toggleDone(tempTodo.id);
-                          },
+                child: Dismissible(
+                  key: Key(tempTodo.toString()),
+                  onDismissed: (directoin) {
+                    todoModel.remove(tempTodo.id);
+                  },
+                  direction: DismissDirection.startToEnd,
+                  child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Transform.scale(
+                          scale: 2.0,
+                          child: Checkbox(
+                            value: tempTodo.isDone,
+                            onChanged: (bool? newValue) {
+                              if (newValue!) {
+                                ctrl!.play();
+                              }
+                              todoModel.toggleDone(tempTodo.id);
+                            },
+                          ),
                         ),
-                      ),
-                      Text(tempTodo.title!),
-                      formattedDate != null ? Text(formattedDate) : new Container(),
-                      IconButton(
-                        icon: Icon(Icons.edit),
-                        onPressed: () => {
-                          Navigator.pushNamed(
-                              context, TodoDetailScreen.routeName,
-                              arguments: ScreenArguments(tempTodo.id,))
-                        },
-                      )
-                    ]),
+                        Text(tempTodo.title!),
+                        formattedDate != null ? Text(formattedDate) : new Container(),
+                        IconButton(
+                          icon: Icon(Icons.edit),
+                          onPressed: () => {
+                            Navigator.pushNamed(
+                                context, TodoDetailScreen.routeName,
+                                arguments: ScreenArguments(tempTodo.id,))
+                          },
+                        )
+                      ]),
+                ),
               );
             }));
   }
